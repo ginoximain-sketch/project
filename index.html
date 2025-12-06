@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comptabilité Complète</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .sheet {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .sheet.active {
+            display: block;
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 25px;
+            font-size: 28px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        input, select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background: #f8f9ff;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            padding: 25px;
+            border-radius: 15px;
+            color: white;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .card h3 {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .card .value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .card-blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-green { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .card-orange { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .card-purple { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .delete-btn, .edit-btn {
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+
+        .delete-btn {
+            background: #f5576c;
+        }
+
+        .delete-btn:hover {
+            background: #d63447;
+        }
+
+        .edit-btn {
+            background: #4facfe;
+        }
+
+        .edit-btn:hover {
+            background: #2d8fd8;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .loading {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 2000;
+        }
+
+        .loading.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">⏳ Chargement...</div>
+    
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="changeTab('dashboard')">📊 Dashboard</button>
+            <button class="tab" onclick="changeTab('produits')">📦 Produits</button>
+            <button class="tab" onclick="changeTab('ventes')">💰 Ventes</button>
+            <button class="tab" onclick="changeTab('credits')">💳 Crédits</button>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="sheet active">
+            <h2>📊 Tableau de Bord</h2>
+            <div class="dashboard-grid">
+                <div class="card card-blue">
+                    <h3>Chiffre d'Affaires Total</h3>
+                    <div class="value" id="totalCA">0 DA</div>
+                </div>
+                <div class="card card-green">
+                    <h3>Bénéfice Total</h3>
+                    <div class="value" id="totalBenefice">0 DA</div>
+                </div>
+                <div class="card card-orange">
+                    <h3>Crédits en Cours</h3>
+                    <div class="value" id="totalCredits">0 DA</div>
+                </div>
+                <div class="card card-purple">
+                    <h3>Produits Actifs</h3>
+                    <div class="value" id="totalProduits">0</div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="chart-container">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">📈 Top 5 Produits Vendus</h3>
+                    <canvas id="topProduitsChart" width="400" height="300"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">💸 Évolution des Crédits</h3>
+                    <canvas id="creditsChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Produits -->
+        <div id="produits" class="sheet">
+            <h2>📦 Gestion des Produits</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nom du Produit</label>
+                    <input type="text" id="nomProduit" placeholder="Ex: Téléphone Samsung">
+                </div>
+                <div class="form-group">
+                    <label>Coût Unitaire (DA)</label>
+                    <input type="number" id="coutUnitaire" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Nombre de Pièces Commandées</label>
+                    <input type="number" id="nbPieces" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Prix de Livraison Total (DA)</label>
+                    <input type="number" id="prixLivraison" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Charges Externes (DA)</label>
+                    <input type="number" id="chargesExternes" placeholder="0">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="ajouterProduit()">➕ Ajouter Produit</button>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Coût Unit.</th>
+                        <th>Nb Pièces</th>
+                        <th>Livraison</th>
+                        <th>Charges Ext.</th>
+                        <th>Prix Total Unit.</th>
+                        <th>Prix Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyProduits"></tbody>
+            </table>
+        </div>
+
+        <!-- Ventes -->
+        <div id="ventes" class="sheet">
+            <h2>💰 Gestion des Ventes</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Produit</label>
+                    <select id="produitVente">
+                        <option value="">Sélectionner un produit</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nombre Vendu</label>
+                    <input type="number" id="nbVendu" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Prix de Vente Unitaire (DA)</label>
+                    <input type="number" id="prixVenteUnit" placeholder="0">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="ajouterVente()">➕ Enregistrer Vente</button>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Quantité Vendue</th>
+                        <th>Prix de Vente Unit.</th>
+                        <th>Coût Total</th>
+                        <th>Chiffre d'Affaires</th>
+                        <th>Bénéfice</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyVentes"></tbody>
+            </table>
+        </div>
+
+        <!-- Crédits -->
+        <div id="credits" class="sheet">
+            <h2>💳 Suivi des Crédits</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nom du Client</label>
+                    <input type="text" id="nomClient" placeholder="Ex: Ahmed Benali">
+                </div>
+                <div class="form-group">
+                    <label>Montant Total du Crédit (DA)</label>
+                    <input type="number" id="montantCredit" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Montant Remboursé (DA)</label>
+                    <input type="number" id="montantRembourse" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="dateCredit">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="ajouterCredit()">➕ Ajouter Crédit</button>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Montant Total</th>
+                        <th>Remboursé</th>
+                        <th>Restant</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyCredits"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modalCredit" class="modal">
+        <div class="modal-content">
+            <h3>💳 Modifier le Remboursement</h3>
+            <div class="form-group">
+                <label>Client</label>
+                <input type="text" id="modalNomClient" readonly style="background: #f5f5f5;">
+            </div>
+            <div class="form-group" style="margin-top: 15px;">
+                <label>Montant Total du Crédit</label>
+                <input type="text" id="modalMontantTotal" readonly style="background: #f5f5f5;">
+            </div>
+            <div class="form-group" style="margin-top: 15px;">
+                <label>Montant Remboursé Actuel</label>
+                <input type="text" id="modalRemboursActuel" readonly style="background: #f5f5f5;">
+            </div>
+            <div class="form-group" style="margin-top: 15px;">
+                <label>Nouveau Montant Remboursé (DA)</label>
+                <input type="number" id="modalNouveauRembours">
+            </div>
+            <div style="margin-top: 25px;">
+                <button class="btn btn-primary" onclick="sauvegarderCredit()">💾 Sauvegarder</button>
+                <button class="btn btn-danger" onclick="fermerModal()">❌ Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // ⚠️ REMPLACE CES VALEURS PAR TES CLÉS SUPABASE
+        const SUPABASE_URL = 'TON_URL_ICI';
+        const SUPABASE_KEY = 'TON_ANON_KEY_ICI';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        var produits = [];
+        var ventes = [];
+        var credits = [];
+        var creditEnCours = null;
+
+        // Charger toutes les données au démarrage
+        async function chargerDonnees() {
+            showLoading();
+            try {
+                const [p, v, c] = await Promise.all([
+                    supabase.from('produits').select('*').order('id', { ascending: true }),
+                    supabase.from('ventes').select('*').order('id', { ascending: true }),
+                    supabase.from('credits').select('*').order('id', { ascending: true })
+                ]);
+                
+                produits = p.data || [];
+                ventes = v.data || [];
+                credits = c.data || [];
+                
+                afficherProduits();
+                afficherVentes();
+                afficherCredits();
+                updateProduitSelect();
+                updateDashboard();
+            } catch (err) {
+                console.error('Erreur chargement:', err);
+                alert('Erreur de connexion. Vérifie tes clés Supabase !');
+            }
+            hideLoading();
+        }
+
+        function showLoading() {
+            document.getElementById('loading').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('active');
+        }
+
+        document.getElementById('dateCredit').valueAsDate = new Date();
+        chargerDonnees();
+
+        function changeTab(tab) {
+            var sheets = ['dashboard', 'produits', 'ventes', 'credits'];
+            var tabs = document.querySelectorAll('.tab');
+            
+            sheets.forEach(function(s) {
+                document.getElementById(s).classList.remove('active');
+            });
+            
+            tabs.forEach(function(t) {
+                t.classList.remove('active');
+            });
+            
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tab === 'dashboard') {
+                updateDashboard();
+            }
+        }
+
+        async function ajouterProduit() {
+            var nom = document.getElementById('nomProduit').value;
+            var cout = parseFloat(document.getElementById('coutUnitaire').value) || 0;
+            var nb = parseInt(document.getElementById('nbPieces').value) || 0;
+            var livraison = parseFloat(document.getElementById('prixLivraison').value) || 0;
+            var charges = parseFloat(document.getElementById('chargesExternes').value) || 0;
+
+            if (!nom || nb === 0) {
+                alert('Veuillez remplir les champs obligatoires');
+                return;
+            }
+
+            var prixTotalUnit = cout + (livraison / nb) + (charges / nb);
+            var prixTotal = (cout * nb) + livraison + charges;
+
+            showLoading();
+            const { data, error } = await supabase.from('produits').insert({
+                nom: nom,
+                cout: cout,
+                nb: nb,
+                livraison: livraison,
+                charges: charges,
+                prix_total_unit: prixTotalUnit,
+                prix_total: prixTotal
+            }).select();
+
+            if (error) {
+                alert('Erreur : ' + error.message);
+                hideLoading();
+                return;
+            }
+
+            produits.push(data[0]);
+
+            document.getElementById('nomProduit').value = '';
+            document.getElementById('coutUnitaire').value = '';
+            document.getElementById('nbPieces').value = '';
+            document.getElementById('prixLivraison').value = '';
+            document.getElementById('chargesExternes').value = '';
+
+            afficherProduits();
+            updateProduitSelect();
+            hideLoading();
+        }
+
+        function afficherProduits() {
+            var html = '';
+            for (var i = 0; i < produits.length; i++) {
+                var p = produits[i];
+                html += '<tr>' +
+                    '<td><strong>' + p.nom + '</strong></td>' +
+                    '<td>' + p.cout.toFixed(2) + ' DA</td>' +
+                    '<td>' + p.nb + '</td>' +
+                    '<td>' + p.livraison.toFixed(2) + ' DA</td>' +
+                    '<td>' + p.charges.toFixed(2) + ' DA</td>' +
+                    '<td>' + p.prix_total_unit.toFixed(2) + ' DA</td>' +
+                    '<td><strong>' + p.prix_total.toFixed(2) + ' DA</strong></td>' +
+                    '<td><button type="button" class="delete-btn" onclick="supprimerProduit(' + p.id + ')">🗑️</button></td>' +
+                    '</tr>';
+            }
+            document.getElementById('tbodyProduits').innerHTML = html;
+        }
+
+        async function supprimerProduit(id) {
+            if (!confirm('Supprimer ce produit ?')) return;
+            
+            showLoading();
+            const { error } = await supabase.from('produits').delete().eq('id', id);
+            
+            if (error) {
+                alert('Erreur : ' + error.message);
+                hideLoading();
+                return;
+            }
+
+            produits = produits.filter(p => p.id !== id);
+            afficherProduits();
+            updateProduitSelect();
+            updateDashboard();
+            hideLoading();
+        }
+
+        function updateProduitSelect() {
+            var html = '<option value="">Sélectionner un produit</option>';
+            for (var i = 0; i < produits.length; i++) {
+                html += '<option value="' + i + '">' + produits[i].nom + '</option>';
+            }
+            document.getElementById('produitVente').innerHTML = html;
+        }
+
+        async function ajouterVente() {
+            var idx = document.getElementById('produitVente').value;
+            var nb = parseInt(document.getElementById('nbVendu').value) || 0;
+            var prix = parseFloat(document.getElementById('prixVenteUnit').value) || 0;
+
+            if (idx === '' || nb === 0 || prix === 0) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+
+            var p = produits[idx];
+            var cout = p.prix_total_unit * nb;
+            var ca = prix * nb;
+            var benefice = ca - cout;
+
+            showLoading();
+            const { data, error } = await supabase.from('ventes').insert({
+                nom_produit: p.nom,
+                nb_vendu: nb,
+                prix_vente: prix,
+                cout_total: cout,
+                ca: ca,
+                benefice: benefice
+            }).select();
+
+            if (error) {
+                alert('Erreur : ' + error.message);
+                hideLoading();
+                return;
+            }
+
+            ventes.push(data[0]);
+
+            document.getElementById('produitVente').value = '';
+            document.getElementById('nbVendu').value = '';
+            document.getElementById('prixVenteUnit').value = '';
+
+            afficherVentes();
+            updateDashboard();
+            hideLoading();
+        }
+
+        function afficherVentes() {
+            var html = '';
+            for (var i = 0; i < ventes.length; i++) {
+                var v = ventes[i];
+                var color = v.benefice >= 0 ? '#43e97b' : '#f5576c';
+                html += '<tr>' +
+                    '<td><strong>' + v.nom_produit + '</strong></td>' +
+                    '<td>' + v.nb_vendu + '</td>' +
+                    '<td>' + v.prix_vente.toFixed(2) + ' DA</td>' +
+                    '<td>' + v.cout_total.toFixed(2) + ' DA</td>' +
+                    '<td>' + v.ca.toFixed(2) + ' DA</td>' +
+                    '<td style="color:' + color + ';font-weight:bold">' + v.benefice.toFixed(2) + ' DA</td>' +
+                    '<td><button type="button" class="delete-btn" onclick="supprimerVente(' + v.id + ')">🗑️</button></td>' +
+                    '</tr>';
+            }
+            document.getElementById('tbodyVentes').innerHTML = html;
+        }
+
+        async function supprimerVente(id) {
+            if (!confirm('Supprimer cette vente ?')) return;
+            
+            showLoading();
+            const { error } = await supabase.from('ventes').delete().eq('id', id);
+            
+            if (error) {
+                alert('Erreur : ' + error.message);
+                hideLoading();
+                return;
+            }
+
+            ventes = ventes.filter(v => v.id !== id);
+            afficherVentes();
+            updateDashboard();
+            hideLoading();
+        }
+
+        async function ajouterCredit() {
+            var nom = document.getElementById('nomClient').value;
+            var montant = parseFloat(document.getElementById('montantCredit').value) || 0;
+            var rembourse = parseFloat(document.getElementById('montantRembourse').value) || 0;
+            var date = document.getElementById('dateCredit').value;
+
+            if (!nom || montant === 0 || !date) {
+                alert('Veuillez remplir les champs obligatoires');
+                return;
+            }
+
+            showLoading();
+            const { data, error } = await supabase.from('credits').insert({
+                nom: nom,
+                montant: montant,
+                rembourse: rembourse,
+                restant: montant - rembourse,
+                date: date
+            }).select();
+
+            if (error) {
+                alert('Erreur : ' + error.message);
+                hideLoading();
+                return;
+            }
+
+            credits.push(data[0]);
+
+            document.getElementById('nomClient').value = '';
+            document.getElementById('montantCredit').value = '';
+            document.getElementById('montantRembourse').value = '';
+            document.getElementById('dateCredit').valueAsDate = new Date();
+
+            afficherCredits();
+            updateDashboard();
+            hideLoading();
+        }
+
+        function afficherCredits() {
+            var html = '';
+            for (var i = 0; i < credits.length; i++) {
+                var c = credits[i];
+                var statut = c.restant === 0 ? '✅ Soldé' : '⏳ En cours';
+                var color = c.restant === 0 ? '#43e97b' : '#f5576c';
+                html += '<tr>' +
+                    '<td><strong>' + c.nom + '</strong></td>' +
+                    '<td>' + c.montant.toFixed(2) + ' DA</td>' +
+                    '<td>' + c.rembourse.toFixed(2) + ' DA</td>' +
+                    '<td style="color:' + color + ';font-weight:bold">' + c.restant.toFixed(2) + ' DA</td>' +
+                    '<td>' + new Date(c.date).toLocaleDateString('fr-FR') + '</td>' +
+                    '<td style="color:' + color + ';font-weight:bold">' + statut + '</td>' +
+                    '<td>' +
+                    '<button type="button" class="edit-btn" onclick="modifierCredit(' + c.id + ')">✏️</button>' +
+                    '<button type="button" class="delete-btn" onclick="supprimerCredit(' + c.id + ')">🗑️</button>' +
+                    '</td></tr>';
+            }
+            document.getElementById('tbodyCredits').innerHTML = html;
+        }
+
+        async function supprimerCredit(id) {
+            if (!confirm('Supprimer ce crédit ?')) return;
+            
+            showLoading();
+            const { error } = await supabase.from('credits').delete().eq('id', id);
+            
+            if (error) {
+                alert('Erreur : ' + error.message);
+                hideLoading();
+                return;
+            }
+
+            credits = credits.filter(c => c.id !== id);
+            afficherCredits();
+            updateDashboard();
+            hideLoading();
+        }
+
+        function modifierCredit(id) {
+            creditEnCours = id;
+            var c = credits.find(cr => cr.id === id);
+            document.getElementById('modalNomClient').value = c.nom;
+            document.getElementById('modalMontantTotal').value = c.montant.toFixed(2) + ' DA';
+            document.getElementById('modalRemboursActuel').value = c.rembourse.toFixed(2) + ' DA';
+            document.getElementById('modalNouveauRembours').value = c.rembourse;
+            document.getElementById('modalCredit').classList.add('active');
+        }
+
+        function fermerModal() {
+            document.getElementById('modalCredit').classList.remove('active');
+            creditEnCours = null;
+        }
+
+        async function sauvegarderCredit() {
+            if (creditEnCours === null) return;
+            
+            var nouveau = parseFloat(document.getElementById('modalNouveauRembours').value) || 0;
+            var c = credits.find(cr => cr.id === creditEnCours);
+            
+            if (nouveau > c.montant) {
+                alert('Le montant ne peut pas dépasser le total !');
+                return;
+            }
+            
+            showLoading();
+            const { error } = await supabase.from('credits').update({
+                rembourse: nouveau,
+                restant: c.montant - nouveau
+            }).eq('id', creditEnCours);
+
+            if (error) {
+                alert('Erreur : ' + error.message);
+                hideLoading();
+                return;
+            }
+
+            c.rembourse = nouveau;
+            c.restant = c.montant - nouveau;
+            
+            afficherCredits();
+            updateDashboard();
+            fermerModal();
+            hideLoading();
+        }
+
+        function updateDashboard() {
+            var ca = 0, ben = 0, cred = 0;
+            for (var i = 0; i < ventes.length; i++) {
+                ca += ventes[i].ca;
+                ben += ventes[i].benefice;
+            }
+            for (var i = 0; i < credits.length; i++) {
+                cred += credits[i].restant;
+            }
+            
+            document.getElementById('totalCA').textContent = ca.toFixed(2) + ' DA';
+            document.getElementById('totalBenefice').textContent = ben.toFixed(2) + ' DA';
+            document.getElementById('totalCredits').textContent = cred.toFixed(2) + ' DA';
+            document.getElementById('totalProduits').textContent = produits.length;
+            
+            drawCharts();
+        }
+
+        function drawCharts() {
+            var canvas1 = document.getElementById('topProduitsChart');
+            var ctx1 = canvas1.getContext('2d');
+            ctx1.clearRect(0, 0, 400, 300);
+            
+            var topP = {};
+            for (var i = 0; i < ventes.length; i++) {
+                var nom = ventes[i].nom_produit;
+                topP[nom] = (topP[nom] || 0) + ventes[i].nb_vendu;
+            }
+            
+            var arr = Object.keys(topP).map(function(k) {
+                return {nom: k, nb: topP[k]};
+            }).sort(function(a,b) {
+                return b.nb - a.nb;
+            }).slice(0, 5);
+            
+            if (arr.length > 0) {
+                var max = arr[0].nb;
+                for (var i = 0; i < arr.length; i++) {
+                    var h = (arr[i].nb / max) * 200;
+                    var x = i * 70 + 20;
+                    ctx1.fillStyle = '#667eea';
+                    ctx1.fillRect(x, 300 - h, 50, h);
+                    ctx1.fillStyle = '#333';
+                    ctx1.font = '12px Arial';
+                    ctx1.fillText(arr[i].nb, x + 15, 290 - h);
+                    ctx1.save();
+                    ctx1.translate(x + 25, 310);
+                    ctx1.rotate(-0.5);
+                    ctx1.fillText(arr[i].nom.substring(0, 10), 0, 0);
+                    ctx1.restore();
+                }
+            }
+            
+            var canvas2 = document.getElementById('creditsChart');
+            var ctx2 = canvas2.getContext('2d');
+            ctx2.clearRect(0, 0, 400, 300);
+            
+            if (credits.length > 0) {
+                var totM = 0, totR = 0;
+                for (var i = 0; i < credits.length; i++) {
+                    totM += credits[i].montant;
+                    totR += credits[i].rembourse;
+                }
+                var totRest = totM - totR;
+                
+                var angle = 0;
+                var colors = ['#43e97b', '#f5576c'];
+                var data = [totR, totRest];
+                
+                for (var i = 0; i < data.length; i++) {
+                    var slice = (data[i] / totM) * 2 * Math.PI;
+                    ctx2.fillStyle = colors[i];
+                    ctx2.beginPath();
+                    ctx2.moveTo(200, 150);
+                    ctx2.arc(200, 150, 100, angle, angle + slice);
+                    ctx2.closePath();
+                    ctx2.fill();
+                    angle += slice;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
